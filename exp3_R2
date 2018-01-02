@@ -1,0 +1,101 @@
+R2#show run
+Building configuration...
+
+Current configuration : 1437 bytes
+!
+version 12.3
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R2
+!
+boot-start-marker
+boot-end-marker
+!
+!
+memory-size iomem 25
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+no aaa new-model
+ip subnet-zero
+ip cef
+!
+!
+!
+ip vrf forwarding
+!
+ip vrf site1
+ rd 100:1
+ route-target export 100:1
+ route-target import 100:1
+!
+ip vrf site2
+ rd 100:2
+ route-target export 100:2
+ route-target import 100:2
+!
+no ftp-server write-enable
+!
+!
+!
+!
+interface Loopback0
+ ip vrf forwarding site1
+ ip address 13.0.0.1 255.255.255.255
+!
+interface Loopback1
+ ip vrf forwarding site2
+ ip address 13.0.0.1 255.255.255.255
+!
+interface Ethernet0
+ no ip address
+ shutdown
+ half-duplex
+!
+interface FastEthernet0
+ no ip address
+ speed auto
+!
+interface FastEthernet0.10
+ encapsulation dot1Q 10
+ ip vrf forwarding site1
+ ip address 1.1.1.10 255.0.0.0
+!
+interface FastEthernet0.20
+ encapsulation dot1Q 20
+ ip vrf forwarding site2
+ ip address 1.1.1.20 255.0.0.0
+!
+router eigrp 100
+ no auto-summary
+ !
+ address-family ipv4 vrf site2
+ network 1.0.0.0
+ network 13.0.0.0
+ no auto-summary
+ autonomous-system 100
+ exit-address-family
+ !
+ address-family ipv4 vrf site1
+ network 1.0.0.0
+ network 13.0.0.0
+ no auto-summary
+ autonomous-system 100
+ exit-address-family
+!
+ip classless
+no ip http server
+!
+!
+line con 0
+ password cisco
+ login
+line aux 0
+line vty 0 4
+ login
+!
+!
+end
