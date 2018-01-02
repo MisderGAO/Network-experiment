@@ -1,1 +1,47 @@
+2 255.0.0.0
+ duplex auto
+ speed auto
+!
+router ospf 1
+ log-adjacency-changes
+ network 23.0.0.0 0.255.255.255 area 0
+ network 34.0.0.0 0.255.255.255 area 0
+!
+router bgp 65234
+ no synchronization
+ bgp router-id 3.3.3.3
+ bgp log-neighbor-changes
+ neighbor 13.1.1.1 remote-as 65100
+ neighbor 13.1.1.1 route-map gao in
+ neighbor 23.1.1.1 remote-as 65234
+ neighbor 23.1.1.1 next-hop-self
+ neighbor 34.1.1.2 remote-as 65234
+ no auto-summary
+!
+no ip http server
+ip forward-protocol nd
+!
+!
+!
+no cdp log mismatch duplex
+route-map gao permit 10
+ set as-path prepend 65234
+!
+!
+!
+control-plane
+!
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login
+!
+end
 
